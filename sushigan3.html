@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SUSHI-GAN</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto&display=swap" rel="stylesheet">
+
+  <style>
+    /* —— GAYA UMUM —— */
+    body{margin:0;font-family:'Roboto',sans-serif;background:#fffef7;color:#333}
+    header{background:#f9d976;padding:30px 20px;text-align:center}
+    header h1{margin:0;font-family:'Playfair Display',serif;font-size:42px}
+    nav{display:flex;justify-content:center;background:#333}
+    nav a{padding:15px 20px;color:#fff;text-decoration:none;font-weight:bold;cursor:pointer}
+    nav a.active{background:#20B2AA}
+    footer{background:#f9d976;text-align:center;padding:10px;margin-top:40px;font-weight:bold}
+
+    /* —— SECTION CONTROL —— */
+    section{display:none;padding:20px}
+    section.active{display:block}
+
+    /* —— HOME —— */
+    .slider-container{position:relative;width:100%;height:550px;overflow:hidden}
+    .slider-container img{width:100%;height:550px;object-fit:cover;display:block}
+    .slider-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.7);border:none;
+                font-size:30px;padding:10px 15px;cursor:pointer;z-index:1}
+    .slider-btn.left{left:10px}.slider-btn.right{right:10px}
+    .section-title{text-align:center;margin-top:30px;font-size:30px;font-family:'Playfair Display',serif;font-weight:700;color:#222}
+    .menu-grid{display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin:30px}
+    .menu-item{text-align:center;width:260px}.menu-item img{width:100%;border-radius:8px}
+    .menu-item p{margin-top:12px;font-size:22px;font-weight:bold}
+
+    /* —— MENU —— */
+    .menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* otomatis menyesuaikan */
+  gap: 25px;
+  padding: 30px;
+  max-width: 1300px;
+  margin: auto;
+}
+
+.menu-item {
+  background-color: white;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+    .quantity{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:8px}
+    .quantity button{font-size:18px;padding:2px 8px}
+    #order-summary,#form-section,#thank-you{max-width:500px;margin:30px auto;background:#fff;border-radius:8px;padding:20px;
+                                           box-shadow:0 2px 5px rgba(0,0,0,.1);display:none}
+    .submit-btn{display:flex;justify-content:center;margin:30px}
+    .submit-btn button,.form-btn button{padding:10px 20px;font-size:16px;font-weight:bold;background:#20B2AA;color:#fff;border:none;
+                                        border-radius:5px;cursor:pointer;margin:5px}
+
+    /* —— STORES —— */
+    #stores .store-info{max-width:1000px;margin:0 auto 20px;padding:20px;background:#f3f3f3;border-radius:10px}
+    #stores .store-info h3{margin-bottom:5px;font-size:20px}
+    #map{width:100%;height:400px;margin-top:30px}
+
+    /* —— ABOUT —— */
+    #about .about-container{max-width:1200px;margin:40px auto;background:#f7b733;padding:20px}
+    #about .about-section{display:flex;flex-wrap:wrap;background:#fff;margin-bottom:30px;border:5px solid #fff}
+    #about .about-section img{width:100%;max-width:500px;object-fit:cover;flex:1 1 50%}
+    #about .about-text{padding:30px;flex:1 1 50%}
+    #about .about-title{font-family:'Playfair Display',serif;color:#d72638;font-size:22px;margin-bottom:10px;font-weight:bold}
+    #about .about-paragraph{font-size:19px;line-height:1.7;color:#222}
+    @media(max-width:768px){#about .about-section{flex-direction:column}}
+  </style>
+</head>
+
+<body>
+  <!-- —— HEADER & NAV —— -->
+  <header><h1>SUSHI-GAN</h1></header>
+
+  <nav>
+    <a data-target="home" class="active">Home</a>
+    <a data-target="menu">Menu</a>
+    <a data-target="stores">Stores</a>
+    <a data-target="about">About&nbsp;Us</a>
+  </nav>
+
+  <!-- —— HOME SECTION —— -->
+  <section id="home" class="active">
+    <div class="slider-container">
+      <button class="slider-btn left" onclick="prevSlide()">&#10094;</button>
+      <img id="sliderImage" src="background1.png" alt="Background">
+      <button class="slider-btn right" onclick="nextSlide()">&#10095;</button>
+    </div>
+
+    <h2 class="section-title">Our Favorite Menu</h2>
+    <div class="menu-grid">
+      <div class="menu-item"><img src="salmon_nigiri.png" alt="Salmon Nigiri"><p>Salmon&nbsp;Nigiri</p></div>
+      <div class="menu-item"><img src="tuna_head.png"     alt="Tuna Head"><p>Tuna&nbsp;Head</p></div>
+      <div class="menu-item"><img src="octopus.png"       alt="Octopus"><p>Octopus</p></div>
+      <div class="menu-item"><img src="salmon_tuna_sashimi.png" alt="Salmon &amp; Tuna Sashimi"><p>Salmon&nbsp;&amp;&nbsp;Tuna&nbsp;Sashimi</p></div>
+    </div>
+  </section>
+
+  <!-- —— MENU SECTION —— -->
+  <section id="menu">
+    <h2 class="section-title">Our Menu</h2>
+    <div class="menu-grid" id="menuItems"></div>
+
+    <div class="submit-btn"><button onclick="showSummary()">Submit Order</button></div>
+    <div id="order-summary"></div>
+
+    <div id="form-section">
+      <h3>Isi Data Anda</h3>
+      <div><label>Nama:<input type="text" id="nama"></label></div>
+      <div><label>No. Meja:<input type="text" id="meja"></label></div>
+      <div><label>Metode Pembayaran:
+        <select id="pembayaran"><option>Cash</option><option>Debit</option><option>QRIS</option></select></label>
+      </div>
+      <div class="form-btn"><button onclick="showThankYou()">Ok</button></div>
+    </div>
+
+    <div id="thank-you"><p>Terima Kasih telah memesan, mohon menunggu pesanan datang.</p></div>
+  </section>
+
+  <!-- —— STORES SECTION —— -->
+  <section id="stores">
+    <h2 class="section-title">Our Stores</h2>
+
+    <div class="store-info">
+      <h3>Sushi-Gan Adityawarman</h3>
+      <p>Jalan Adityawarman No.42 A-C Kav. 12, Wonokromo, Surabaya<br>No. Telp 2233447788<br>Buka 10.00 - 22.00 (WIB)</p>
+    </div>
+    <div class="store-info">
+      <h3>Sushi-Gan Manyar</h3>
+      <p>Jl. Manyar Kertoarjo No.110, Surabaya<br>No. Telp 7788765422<br>Buka 10.00 - 22.00 (WIB)</p>
+    </div>
+    <div class="store-info">
+      <h3>Sushi-Gan Mulyosari</h3>
+      <p>Jl. Raya Mulyosari No.366 A, Surabaya<br>No. Telp 9988776622<br>Buka 10.00 - 22.00 (WIB)</p>
+    </div>
+
+    <div id="map"></div>
+  </section>
+
+  <!-- —— ABOUT SECTION —— -->
+  <section id="about">
+    <div class="about-container">
+      <div class="about-section">
+        <img src="about_us_background1.png" alt="Genki Sushi Store">
+        <div class="about-text">
+          <div class="about-title">ABOUT SUSHI-GAN</div>
+          <p class="about-paragraph">
+            Sushi-Gan dibentuk oleh partner kerja Yoshimoto Sora dan Bambang Suhardji pada tahun 2016, pada saat itu Bambang Suhardji tengah menyelesaikan S3-nya di Tokyo, Jepang, dimana dia dan kawannya Yoshimoto Sora mendapatkan ide untuk membuka toko sushi dengan uang yang mereka dapat dari perusahaan ayah Yoshimoto Sora. Karena Bambang Suhardji berasal dari Surabaya, maka mereka sepakat untuk bepergian ke Surabaya, Indonesia, untuk mendirikan toko Sushi-Gan pertama pada tanggal 15 Maret 2016.
+          </p>
+        </div>
+      </div>
+
+      <div class="about-section">
+        <div class="about-text">
+          <div class="about-title">ABOUT SUSHI-GAN</div>
+          <p class="about-paragraph">
+            Sushi-Gan mempekerjakan sekumpulan chef terlatih dari seluruh nusantara untuk memasak dan mendekorasi makanan dengan penuh profesionalitas dan kedisiplinan yang baik. Pilihan menu teratas Sushi-Gan, yaitu Sashimi dan Tuna Head sudah menjadi mahakarya Sushi-Gan karena pilihan daging ikan yang lembut, segar, dan wangi, serta kemampuan para chef untuk menghidangkan makanan yang mengunggah selera.
+          </p>
+        </div>
+        <img src="about_us_background2.png" alt="Sushi Plates on Conveyor">
+      </div>
+    </div>
+  </section>
+
+  <footer>SUSHI-GAN<br>(c) SUSHI-GAN Indonesia 2016</footer>
+
+  <!-- —— JAVASCRIPT —— -->
+  <script>
+    /* — NAVIGATION — */
+    document.querySelectorAll('nav a').forEach(link=>{
+      link.addEventListener('click',e=>{
+        e.preventDefault();
+        const target=link.dataset.target;
+        document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+        document.getElementById(target).classList.add('active');
+        document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+        link.classList.add('active');
+        if(target==='home') showImage(currentIndex);
+      });
+    });
+
+    /* — SLIDER (HOME) — */
+    const images=["background1.png","background2.png","background3.png","background4.png"];
+    let currentIndex=0;
+    function showImage(i){document.getElementById('sliderImage').src=images[i];}
+    function prevSlide(){currentIndex=(currentIndex-1+images.length)%images.length;showImage(currentIndex);}
+    function nextSlide(){currentIndex=(currentIndex+1)%images.length;showImage(currentIndex);}
+
+    /* — MENU DATA — */
+    const menu=[
+      {name:"corn_salad",label:"Corn Salad",price:20000},{name:"chuka_jelly_fish",label:"Chuka Jelly Fish",price:35000},
+      {name:"egg_nigiri",label:"Egg Nigiri",price:18000},{name:"hana_sushi",label:"Hana Sushi",price:40000},
+      {name:"salmon_nigiri",label:"Salmon Nigiri",price:35000},{name:"salmon_belly",label:"Salmon Belly",price:55000},
+      {name:"tuna_nigiri",label:"Tuna Nigiri",price:25000},{name:"tuna_belly",label:"Tuna Belly",price:45000},
+      {name:"salmon_bowl",label:"Salmon Bowl",price:88000},{name:"tuna_bowl",label:"Tuna Bowl",price:79000},
+      {name:"unagi_bowl",label:"Unagi Bowl",price:109000},{name:"kake_udon",label:"Kake Udon",price:70000},
+      {name:"shrimp_tempura_udon",label:"Shrimp Tempura Udon",price:89000},{name:"tuna_head",label:"Tuna Head",price:149000},
+      {name:"grilled_salmon",label:"Grilled Salmon",price:89000},{name:"chicken_teriyaki",label:"Chicken Teriyaki",price:69000},
+      {name:"salmon_sashimi",label:"Salmon Sashimi",price:89000},{name:"tuna_sashimi",label:"Tuna Sashimi",price:79000},
+      {name:"octopus_sashimi",label:"Octopus Sashimi",price:115000},{name:"salmon_tuna_sashimi",label:"Salmon&Tuna Sashimi",price:99000},
+      {name:"chocolate_ice_cream",label:"Chocolate Ice Cream",price:35000},{name:"pudding",label:"Pudding",price:30000},
+      {name:"hot_ocha",label:"Hot Ocha",price:10000},{name:"cold_ocha",label:"Cold Ocha",price:15000},
+      {name:"lemon_tea",label:"Lemon Tea",price:25000}
+    ];
+    const orders={};
+
+    function renderMenu(){
+      const box=document.getElementById('menuItems');
+      menu.forEach(m=>{
+        orders[m.name]=0;
+        const d=document.createElement('div');d.className='menu-item';
+        d.innerHTML=`<img src="${m.name}.png" alt="${m.label}">
+                     <p>${m.label} - Rp. ${m.price.toLocaleString()}</p>
+                     <div class="quantity">
+                       <button onclick="chgQty('${m.name}',-1)">-</button>
+                       <span id="qty-${m.name}">0</span>
+                       <button onclick="chgQty('${m.name}',1)">+</button>
+                     </div>`;
+        box.appendChild(d);
+      });
+    }
+    function chgQty(item,delta){
+      orders[item]=Math.max(0,orders[item]+delta);
+      document.getElementById('qty-'+item).textContent=orders[item];
+    }
+    function showSummary(){
+      let txt='',total=0;
+      menu.forEach(m=>{
+        const q=orders[m.name];if(q>0){const sub=q*m.price;total+=sub;txt+=`${m.label} (${q}) : Rp. ${sub.toLocaleString()}\n`;}
+      });
+      if(!total){alert('Silakan pilih menu');return;}
+      txt+=`\nTotal : Rp. ${total.toLocaleString()}\n\n`;
+      document.getElementById('order-summary').innerHTML=
+        `<pre>${txt}</pre><div class="form-btn">
+           <button onclick="document.getElementById('order-summary').style.display='none';
+                             document.getElementById('form-section').style.display='block';">Isi Data</button>
+           <button onclick="document.getElementById('order-summary').style.display='none';">Tambah Menu</button>
+         </div>`;
+      document.getElementById('order-summary').style.display='block';
+    }
+    function showThankYou(){
+      document.getElementById('form-section').style.display='none';
+      document.getElementById('thank-you').style.display='block';
+    }
+
+    /* — GOOGLE MAPS — */
+    function initMap(){
+      const center={lat:-7.290293,lng:112.727539};
+      const gmap=new google.maps.Map(document.getElementById('map'),{zoom:12,center});
+      [{lat:-7.290293,lng:112.727539},{lat:-7.281303,lng:112.773155},{lat:-7.264897,lng:112.786201}]
+      .forEach(pos=>new google.maps.Marker({position:pos,map:gmap}));
+    }
+
+    /* — INISIALISASI — */
+    window.onload=()=>{
+      showImage(currentIndex);
+      renderMenu();
+    };
+  </script>
+
+  <!-- ‼️ ISI API-KEY Google Maps di “key=YOUR_KEY_HERE” -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn6i7kdNNBwFPGDyrCzIU6D4fmuGZJ0AI&callback=initMap">
+  </script>
+</body>
+</html>
